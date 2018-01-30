@@ -1,0 +1,58 @@
+Sub reset()
+    For Each ws In Worksheets
+        ws.Columns("I:L").Clear
+    Next ws
+End Sub
+
+Sub tickerhw()
+    Dim TickerName As String
+    Dim prevTicker As String
+    Dim TickerTotal As Double
+    TickerTotal = 0
+    
+    For Each ws In Worksheets
+    
+    Dim SumRow As Integer
+    SumRow = 2
+    
+    Dim lastRow As Long
+    lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    prevTicker = ws.Cells(2, 1).Value
+    
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Total Stock Volume"
+    
+    For i = 2 To lastRow
+        TickerName = ws.Cells(i, 1).Value
+        Debug.Print (i)
+        If TickerName = prevTicker Then
+            TickerTotal = TickerTotal + ws.Cells(i, 7).Value
+        Else
+            ws.Range("I1").Cells(SumRow, 1).Value = prevTicker
+            ws.Range("I1").Cells(SumRow, 2).Value = TickerTotal
+            ws.Range("I1").Cells(SumRow, 2).NumberFormat = "#,###"
+            SumRow = SumRow + 1
+            TickerTotal = ws.Cells(i, 7).Value
+            prevTicker = TickerName
+        End If
+    Next i
+    
+    ws.Range("I1").Cells(SumRow, 1).Value = TickerName
+    ws.Range("I1").Cells(SumRow, 2).Value = TickerTotal
+Next ws
+
+End Sub
+
+
+Sub autofit()
+    For Each ws In Worksheets
+    Columns("I:Q").Select
+    Selection.EntireColumn.autofit
+    Next ws
+End Sub
+
+Sub runall()
+    Call reset
+    Call tickerhw
+    Call autofit
+End Sub

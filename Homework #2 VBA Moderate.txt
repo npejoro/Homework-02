@@ -1,0 +1,103 @@
+Sub reset()
+    For Each ws In Worksheets
+        ws.Columns("I:L").Clear
+    Next ws
+End Sub
+
+
+Sub tickerhw()
+    'Declaring Variables
+    Dim TickerName As String
+    Dim prevTicker As String
+    Dim TickerTotal As Double
+    Dim PercentChange As Single
+    Dim TradeDate As Date
+    Dim prevOpen As Double
+    TickerTotal = 0
+    PercentChange = 0
+    TradeDate = 0
+    
+    'Forloop for every worksheet
+    For Each ws In Worksheets
+    
+    'Declaring Output Variables
+    Dim SumRow As Integer
+    Dim OpenStock As Double
+    Dim CloseStock As Double
+    SumRow = 2
+    
+    'Finding last row in dataset
+    Dim lastRow As Long
+    lastRow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    prevTicker = ws.Cells(2, 1).Value
+    prevOpen = ws.Cells(2, 3).Value
+    
+    
+    'Creating Range for Output table
+    ws.Range("I1").Value = "Ticker"
+    ws.Range("J1").Value = "Yearly Change"
+    ws.Range("K1").Value = "Percentage Change"
+    ws.Range("L1").Value = "Total Stock Volume"
+    
+        'Forloop for Total Stock Volume, Yearly Change Stock Price and Percentage Change
+         For i = 2 To lastRow
+            TickerName = ws.Cells(i, 1).Value
+            Debug.Print (i)
+         If TickerName = prevTicker Then
+            TickerTotal = TickerTotal + ws.Cells(i, 7).Value
+         Else
+            ws.Range("I1").Cells(SumRow, 1).Value = prevTicker
+            ws.Range("I1").Cells(SumRow, 4).Value = TickerTotal
+            ws.Range("I1").Cells(SumRow, 4).NumberFormat = "#,###"
+            CloseStock = ws.Cells((i - 1), 6).Value
+            OpenStock = prevOpen
+            YearChange = CloseStock - OpenStock
+            ws.Range("I1").Cells(SumRow, 2).Value = YearChange
+            PercentChange = YearChange / OpenStock
+            ws.Range("I1").Cells(SumRow, 3).Value = PercentChange
+            ws.Range("I1").Cells(SumRow, 3).NumberFormat = "0.00%"
+            SumRow = SumRow + 1
+            TickerTotal = ws.Cells(i, 7).Value
+            prevTicker = TickerName
+         End If
+         Next i
+    
+    'Range for Output Table
+    ws.Range("I1").Cells(SumRow, 1).Value = TickerName
+    ws.Range("I1").Cells(SumRow, 2).Value = YearChange
+    ws.Range("I1").Cells(SumRow, 3).Value = PercentChange
+    ws.Range("I1").Cells(SumRow, 4).Value = TickerTotal
+        
+        'If statements to create conditional formatting
+        For i = 2 To lastRow
+            YearChange = ws.Cells(i, 10).Value
+        If YearChange >= 1 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 4
+        ElseIf YearChange = 0 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 0
+        ElseIf YearChange < 1 Then
+            ws.Cells(i, 10).Interior.ColorIndex = 3
+
+        End If
+        Next i
+    
+    Next ws
+    
+End Sub
+
+
+Sub autofit()
+    For Each ws In Worksheets
+    Columns("I:Q").Select
+    Selection.EntireColumn.autofit
+    Next ws
+End Sub
+
+
+Sub runall()
+    Call reset
+    Call tickerhw
+    Call autofit
+End Sub
+
+
